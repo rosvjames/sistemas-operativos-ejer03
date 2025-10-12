@@ -1,0 +1,28 @@
+# Archivos compilados
+*.class
+*.o
+*.out
+*~
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+.pytest_cache/
+
+# Logs
+*.log
