@@ -59,73 +59,58 @@ A continuación se presentan capturas de pantalla de la ejecución de cada imple
 #### C - Hilos (pthread)
 ![Ejecución C Hilos](C_threads.png)
 
-**Descripción:** La captura muestra la ejecución del programa con hilos en C. Se observa claramente:
-- La **sincronización correcta** entre productores y consumidores usando semáforos `empty`, `full` y `mutex`
-- Los **productores** generan items y los agregan al buffer circular (mensaje "Productor X produce item Y")
-- Los **consumidores** extraen items del buffer y los procesan (mensaje "Consumidor X consume item Y")
-- **No hay condiciones de carrera**: cada operación de producción/consumo es atómica gracias al mutex
-- El buffer respeta su **capacidad máxima**: `empty` bloquea a productores cuando está lleno, `full` bloquea a consumidores cuando está vacío
+**Descripción (observable en la captura):**
+- Se ven líneas intercaladas de producción y consumo en consola.
+- La ejecución avanza de forma continua sin errores visibles.
+- Los mensajes muestran que ambos roles (productor y consumidor) están activos.
 
 #### C - Procesos (memoria compartida POSIX)
 ![Ejecución C Procesos](C_processes.png)
 
-**Descripción:** Esta implementación usa procesos separados con IPC POSIX. Se aprecia:
-- **Memoria compartida** (`shm_open` + `mmap`) para el buffer que es accesible por todos los procesos
-- **Semáforos con nombre** (`sem_open`) para sincronización inter-proceso
-- La **limpieza correcta** de recursos POSIX al finalizar (handler de SIGINT)
-- El comportamiento es idéntico a la versión con hilos, pero con procesos independientes
-- **Múltiples procesos coordinados** sin corrupción de datos ni deadlocks
+**Descripción (observable en la captura):**
+- Se observan mensajes de productores y consumidores impresos por procesos.
+- La salida fluye de forma estable; no se aprecian errores ni bloqueos.
+- Muestra que la coordinación entre procesos funciona durante la ejecución.
 
 #### Java - Hilos (Semaphore)
 ![Ejecución Java Hilos](J_threads.png)
 
-**Descripción:** Implementación Java con hilos nativos. Se visualiza:
-- Uso de `java.util.concurrent.Semaphore` para implementar el patrón `empty/full/mutex`
-- **Buffer circular** con índices que avanzan módulo N
-- **Alternancia controlada** entre productores y consumidores
-- La **salida ordenada** muestra que no hay race conditions
-- Los hilos Java se sincronizan correctamente, bloqueando cuando el buffer está lleno o vacío
+**Descripción (observable en la captura):**
+- Se ven mensajes de "produce" y "consume" alternándose en la consola Java.
+- La ejecución es estable y continua, sin excepciones mostradas.
+- Evidencia de que productores y consumidores están trabajando en paralelo.
 
 #### Java - Procesos (Cliente/Servidor por sockets)
 ![Ejecución Java Procesos](J_processes.png)
 
-**Descripción:** Arquitectura cliente-servidor con tres procesos Java separados. Se muestra:
-- **PCServer**: mantiene el buffer compartido usando `ArrayBlockingQueue` (que encapsula `empty/full/mutex`)
-- **ProducerClient**: envía comandos `PUT X` al servidor
-- **ConsumerClient**: envía comandos `TAKE` al servidor
-- Comunicación **IPC vía sockets TCP** en localhost
-- El servidor procesa las peticiones de forma **thread-safe** y responde a cada cliente
-- **Coordinación entre procesos** sin memoria compartida directa
+**Descripción (observable en la captura):**
+- Se aprecian logs que reflejan solicitudes de producción/consumo y respuestas.
+- La interacción indica que el servidor atiende operaciones y los clientes reciben confirmaciones.
+- No se muestran errores; la ejecución demuestra que el flujo PUT/TAKE funciona.
 
 #### Python - Hilos (threading)
 ![Ejecución Python Hilos](pc_threads.png)
 
-**Descripción:** Versión minimalista en Python con threading. Se evidencia:
-- `threading.Semaphore` para `empty` y `full`, `threading.Lock` para `mutex`
-- **Sintaxis clara y concisa** de Python manteniendo el mismo comportamiento
-- Los hilos producen y consumen items respetando las restricciones del buffer
-- **Sin errores de sincronización**: cada operación es atómica
-- Comportamiento equivalente a las versiones en C y Java
+**Descripción (observable en la captura):**
+- Se observan mensajes de producción y consumo impresos de forma intercalada.
+- La ejecución continúa sin errores visibles.
+- Se evidencia el funcionamiento correcto del patrón en hilos de Python.
 
 #### Python - Procesos (multiprocessing.Queue)
 ![Ejecución Python Procesos](pc_processes.png)
 
-**Descripción:** La implementación más elegante usando `multiprocessing.Queue`. Se observa:
-- **`Queue(maxsize=N)` maneja automáticamente** el bloqueo cuando está lleno/vacío
-- No requiere implementar semáforos `empty/full` manualmente
-- **Procesos independientes** de Python comunicándose vía IPC interno (pipes)
-- La cola thread-safe garantiza **sincronización correcta** sin código adicional
-- Demuestra cómo las bibliotecas de alto nivel simplifican el problema Productor-Consumidor
+**Descripción (observable en la captura):**
+- Se ven procesos imprimiendo producción y consumo, evidenciando el intercambio.
+- La salida es fluida y sin errores visibles, lo que demuestra coordinación.
+- Muestra que el programa corre correctamente en el modelo de procesos.
 
 #### Análisis de las capturas
 
-Todas las implementaciones demuestran que:
-1. ✅ **El patrón Productor-Consumidor funciona correctamente** en todos los lenguajes y modelos
-2. ✅ **No hay condiciones de carrera**: las operaciones críticas están protegidas
-3. ✅ **No hay deadlocks**: los semáforos se usan correctamente
-4. ✅ **El buffer respeta su capacidad**: nunca se sobrescribe ni se lee de un buffer vacío
-5. ✅ **La sincronización es efectiva**: tanto con hilos como con procesos
-6. ✅ **Los recursos se limpian apropiadamente**: los programas pueden ejecutarse múltiples veces sin conflictos
+Lo que se aprecia visualmente en todas las capturas es que:
+1. ✅ Hay ejecución continua con mensajes de producción y consumo intercalados.
+2. ✅ No se observan errores, excepciones ni bloqueos en las salidas mostradas.
+3. ✅ La alternancia produce/consume evidencia la coordinación básica correcta.
+4. ✅ El objetivo de las capturas es demostrar funcionamiento real en consola; los detalles internos (semáforos/colas/sockets) están en el código y la documentación.
 
 ---
 
@@ -143,7 +128,7 @@ Todas las implementaciones demuestran que:
 
 ---
 
-### 4) Buenas prácticas incorporadas (para pasar el “rerun test”)
+### 5) Buenas prácticas incorporadas (para pasar el “rerun test”)
 
 - **C procesos:**
   - Constantes para nombres POSIX (evitar typos).
