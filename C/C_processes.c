@@ -81,7 +81,7 @@ int main(void){
     for (int x=1;;++x){
       sem_wait(empty); sem_wait(mutex);
         shm->buffer[shm->in]=x; shm->in=(shm->in+1)%N;
-        // printf("produced %d\n", x); // opcional si quieres ver el lado productor
+        printf("produced %d\n", x); // opcional si quieres ver el lado productor
       sem_post(mutex); sem_post(full);
       usleep(100000);
     }

@@ -7,7 +7,7 @@ def producer(q: Queue):
     x = 1
     while True:
         q.put(x)            # bloquea si la cola está llena
-        # print(f"put {x}") # opcional
+        print(f"put {x}") # opcional
         x += 1
         time.sleep(0.10)  
 

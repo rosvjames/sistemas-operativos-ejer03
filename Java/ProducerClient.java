@@ -16,7 +16,7 @@ public class ProducerClient {
       while (true) {
         out.println("PUT " + x);
         String resp = in.readLine(); // "OK"
-        // System.out.println("put " + x + " -> " + resp);
+        System.out.println("put " + x + " -> " + resp);
         x++;
         Thread.sleep(100); // opcional
       }
